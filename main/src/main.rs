@@ -1,19 +1,13 @@
 use std::io::{self, BufRead};
 use std::str::FromStr;
+use std::usize;
 
 fn main() {
     let mut word = String::new();
     std::io::stdin().read_line(&mut word).unwrap();
     let num: usize = word.trim().parse().unwrap();
     let mut data: Vec<u64> = input(num);
-    for i in 0..num {
-        print!("{}", data[i]);
-        if i != num-1 {
-            print!(" ");
-        }
-    }
-    println!("");
-    sort(num, data);
+    
 }
 
 fn input(num: usize) -> Vec<u64> {
@@ -27,25 +21,4 @@ fn input(num: usize) -> Vec<u64> {
         data.push(x);
     }
     data
-}
-
-fn sort(num: usize, mut data: Vec<u64>) {
-    let mut v: u64 = 0;
-    let mut j: usize = 0;
-    for i in 1..num {
-        v = data[i];
-        j = i;
-        while j>0 && data[j-1]>v {
-            data[j] = data[j-1];
-            j = j-1; 
-        }
-        data[j] = v;
-        for i in 0..num {
-            print!("{}", data[i]);
-            if i != num-1 {
-                print!(" ");
-            }
-        }
-        println!("");
-    }
 }
