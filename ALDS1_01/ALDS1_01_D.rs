@@ -5,13 +5,8 @@ fn main() {
     std::io::stdin().read_line(&mut word).unwrap();
     let num: usize = word.trim().parse().unwrap();
     let mut data: Vec<u64> = input(num);
-    let mut count = 0;
-    for &i in &data {
-        if isPrime(i) {
-            count += 1;
-        }
-    }
-    println!("{}",count);
+    let ans: i64 = max_prof(data, num);
+    println!("{}",ans);
 }
 
 fn input(num: usize) -> Vec<u64> {
@@ -26,20 +21,17 @@ fn input(num: usize) -> Vec<u64> {
     data
 }
 
-fn isPrime(x: u64) -> bool {
-    if x==2 {
-        return true;
-    }
-    else if x<2 || x%2==0 {
-        return false;
-    }
-    let limit: u64 = (x as f64).sqrt() as u64 + 1;
-    let mut i = 3;
-    while i<=limit {
-        if x%i==0 {
-            return false;
+fn max_prof(data: Vec<u64>, num: usize) -> i64 {
+    let mut minv: i64 = data[0] as i64;
+    let mut maxv: i64 = (data[1]-data[0]) as i64;
+    for i in 1..num {
+        let j: i64 = data[i] as i64; 
+        if maxv<j-minv {
+            maxv = j-minv;
         }
-        i += 2;
+        if j<minv {
+            minv = j;
+        }
     }
-    true
+    maxv
 }
