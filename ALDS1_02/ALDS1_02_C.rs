@@ -6,9 +6,11 @@ fn main() {
     std::io::stdin().read_line(&mut word).unwrap();
     let num: usize = word.trim().parse().unwrap();
     let mut data: Vec<(char, u64)> = input(num);
-    print(data);
-    bubbleSort(num, data);
-    //selectionSort(num, &mut data);
+    let mut data_bubble = bubbleSort(num, &mut data.clone());
+    let mut data_selection = selectionSort(num, &mut data.clone());
+    data.sort_by(|a, b| a.1.cmp(&b.1));
+    is_stable(&data, data_bubble);
+    is_stable(&data, data_selection);
 }
 
 fn input(num: usize) -> Vec<(char, u64)> {
@@ -34,52 +36,56 @@ fn input(num: usize) -> Vec<(char, u64)> {
     data
 }
 
-fn bubbleSort(num: usize, data: Vec<(char, u64)>) {
+fn bubbleSort(num: usize, v: &mut Vec<(char, u64)>) -> Vec<(char, u64)> {
     let mut flag: bool = true;
-    let mut count: usize = 0;
     while flag {
         flag = false;
         for i in (1..num).rev() {
-            if data[i].1 < data[i-1].1 {
-                let tmp1: (char, u64) = data[i].clone();
-                let tmp2: (char, u64) = data[i-1].clone();
-                data[i] = tmp2;
-                data[i-1] = tmp1;
+            if v[i].1 < v[i-1].1 {
+                let tmp: (char, u64) = v[i];
+                v[i] = v[i-1];
+                v[i-1] = tmp;
                 flag = true;
-                count += 1;
             }
         }
     }
-    println!("\n{}", count);
+    v.to_vec()
 }
 
-/*
-fn selectionSort(num: usize, data: &mut Vec<Trump>) {
-    let mut count: usize = 0;
+fn selectionSort(num: usize, v: &mut Vec<(char, u64)>) -> Vec<(char, u64)> {
     for i in 0..num {
         let mut minj: usize = i;
         for j in i..num {
-            if data[j].number<data[minj].number {
+            if v[j].1<v[minj].1 {
                 minj = j;
             }
         }
         if i!=minj {
-            let tmp1: Trump = data[i].clone();
-            let tmp2: Trump = data[minj].clone();
-            data[i] = tmp2;
-            data[minj] = tmp1;
-            count += 1;
+            let tmp: (char, u64) = v[i];
+            v[i] = v[minj];
+            v[minj] = tmp;
         }
     }
-    println!("\n{}",count);
+    v.to_vec()
 }
-*/
 
-fn print(data: Vec<(char, u64)>) {
+fn print(data: &Vec<(char, u64)>) {
     for i in 0..data.len() {
         print!("{}{}", data[i].0,data[i].1);
         if i != data.len()-1 {
             print!(" ");
         }
     }
+    println!("");
+}
+
+fn is_stable(correct: &Vec<(char, u64)>, vec: Vec<(char, u64)>) {
+    print(&vec);
+    for i in 0..correct.len() {
+        if correct[i].0!=vec[i].0 || correct[i].1!=vec[i].1 {
+            println!("Not stable");
+            return;
+        }
+    }
+    println!("Stable");
 }
