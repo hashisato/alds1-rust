@@ -7,7 +7,7 @@ fn main() {
     let mut count = 0;
     S.push(0);
     for i in T {
-        count += binarysearch(n, &mut S, i);
+        count += search(n, &mut S, i);
     }
     println!("{}",count);
 }
@@ -28,36 +28,14 @@ fn input() -> (usize, Vec<u64>) {
     (num, vec)
 }
 
-fn binarysearch(num: usize, vec: &mut Vec<u64>, key: u64) -> u64 {
+fn search(num: usize, vec: &mut Vec<u64>, key: u64) -> u64 {
     let mut i: usize = 0;
-    let mut right: usize = num;
-    let mut left: usize = 0;
-    while left<right {
-        let mid = (right+left)/2;
-        if S[mid]==key {
-            return 1;
-        }
-        else if key<S[mid] {
-            right = mid;
-        }
-        else {
-            left = mid+1;
+    vec[num] = key;
+    while vec[i]!=key {
+        i += 1;
+        if i==num {
+            return 0;
         }
     }
-    0
+    1
 }
-
-/*
-int binarysearch(int *S,int key,int n){
-    int right,mid,left,i;
-    right=n;
-    left=0;
-    while(left<right){
-        mid=(left+right)/2;
-        if(S[mid]==key) return 1;
-        else if(key<S[mid]) right=mid;
-        else left=mid+1;
-    }
-    return 0;
-}
-*/
