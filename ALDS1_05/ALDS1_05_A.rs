@@ -5,8 +5,7 @@ fn main() {
     let A = read_u64_vec(n);
     let q = read_usize();
     let m = read_u64_vec(q);
-
-    make_combination(A, m);
+    makeCombination(A, m, q);
 }
 
 fn read_usize() -> usize {
@@ -26,34 +25,26 @@ fn read_u64_vec(n: usize) -> Vec<u64> {
         .collect()
 }
 
-fn make_combination(A: Vec<u64>, m: Vec<u64>) {
+fn makeCombination(A: Vec<u64>, m: Vec<u64>, q: usize) {
     for i in m {
-        let mut found = false;
-        for j in 0..A.len() {
-            let flag = rec(&A, i, j);
-            if flag {
+        let mut flag = false;
+        for j in 0..q {
+            flag = rec(&A, i, j);
+            if flag { 
                 println!("yes");
-                found = true;
                 break;
             }
         }
-        if !found {
-            println!("no");
-        }
+        if !flag { println!("no"); }
     }
 }
 
 fn rec(A: &Vec<u64>, rest: u64, start: usize) -> bool {
-    if rest == 0 {
-        return true;
-    } else if start >= A.len() {
-        return false;
-    }
-    let result1 = rec(A, rest, start + 1);
-    let result2 = if rest >= A[start] {
-        rec(A, rest - A[start], start + 1)
-    } else {
-        false
-    };
-    result1 || result2
+    if rest==0 { return true; }
+    else if start>=A.len() { return false; }
+    let result1 = rec(&A, rest, start+1);
+    let result2 = if rest>=A[start]{
+        rec(&A, rest-A[start], start+1)
+    } else { false };
+    result1||result2
 }
