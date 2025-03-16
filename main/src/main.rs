@@ -11,11 +11,12 @@ struct Node {
 
 fn main() {
     let n: usize = read_usize();
-    let mut nodes: Vec<Node> = Vec::new();
+    let mut nodes: Vec<Node> = ;
     for i in 0..n {
         let node: Node = read_node();
         nodes.push(node);
     }
+    nodes.sort_by(|a, b| a.id.cmp(&b.id));
     for i in 0..n {
         for j in 0..nodes[i].children.len() {
             let child = nodes[i].children[j];
@@ -30,22 +31,22 @@ fn main() {
             nodes[i].depth += 1;
             check = nodes[check as usize].parent;
         }
-
     }
 
     for i in 0..n {
         let node = &nodes[i];
-        let kind = if node.parent == -1 {
-            "root"
-        } else if node.children.len() == 0 {
-            "leaf"
-        } else {
-            "internal node"
-        };
-        println!("node {}: parent = {}, depth = {}, {}, [{}]", node.id, node.parent, node.depth, kind, node.children.iter().map(|x|x.to_string()).collect::<Vec<String>>().join(", "));
-    }
-    
-    
+        let kind = if node.parent==-1 { "root" }
+        else if node.children.len()==0 { "leaf" }
+        else { "internal node" };
+        print!("node {}: parent = {}, depth = {}, {}, [", node.id, node.parent, node.depth, kind);
+        if node.children.len()!=0 {
+            for i in 0..node.children.len() {
+                print!("{}", node.children[i]);
+                if i<node.children.len()-1 { print!(", "); }
+            }
+        }
+        println!("]");
+    }    
 }
 
 fn read_usize() -> usize {
@@ -68,5 +69,5 @@ fn read_node() -> Node {
     let parent: isize = -1;
     let depth: usize = 0;
     let kind: String = String::new();
-    Node { id, parent, depth, kind, children }
+    Node{id, parent, depth, kind, children}
 }

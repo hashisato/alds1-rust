@@ -16,6 +16,7 @@ fn main() {
         let node: Node = read_node();
         nodes.push(node);
     }
+    nodes.sort_by(|a, b| a.id.cmp(&b.id));
     for i in 0..n {
         for j in 0..nodes[i].children.len() {
             let child = nodes[i].children[j];
@@ -26,7 +27,7 @@ fn main() {
     for i in 0..n {
         nodes[i].depth = 0;
         check = nodes[i].parent;
-        while check != -1 {
+        while check!=-1 {
             nodes[i].depth += 1;
             check = nodes[check as usize].parent;
         }
