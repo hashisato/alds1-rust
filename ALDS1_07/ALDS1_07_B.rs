@@ -7,8 +7,7 @@ struct Node {
     siblings: Vec<isize>,
     degree: usize,
     depth: usize,
-    height: isize,
-    //kind: String,
+    kind: String,
 }
 
 fn main() {
@@ -50,19 +49,44 @@ fn main() {
         if (total as isize)<tmp { total = tmp as usize; }
         tmp = 0;
     }
-    for i in (0..total).rev() {
-        for j in 0..n {
-            if (nodes[j].height==-1) && (nodes[j].depth==i) {
-                let mut b: isize = j.try_into().unwrap();
-                let mut c: isize = 0;
-                while nodes[b as usize].height==-1 {
-                    nodes[b as usize].height = c as isize;
-                    b = nodes[b as usize].parent;
-                    c += 1;
-                }
-            }
+
+    for i in nodes {
+        println!("id:{} p:{} s:{} deg:{} dep:{}", i.id, i.parent
+                                    , i.siblings[0]
+                                    , i.degree, i.depth);
+    }
+    /*
+    for i in 0..n {
+        for j in 0..nodes[i].children.len() {
+            let child = nodes[i].children[j];
+            nodes[child].parent = nodes[i].id as isize;
         }
     }
+    let mut check: isize = -1;
+    for i in 0..n {
+        nodes[i].depth = 0;
+        check = nodes[i].parent;
+        while check!=-1 {
+            nodes[i].depth += 1;
+            check = nodes[check as usize].parent;
+        }
+    }
+
+    for i in 0..n {
+        let node = &nodes[i];
+        let kind = if node.parent==-1 { "root" }
+        else if node.children.len()==0 { "leaf" }
+        else { "internal node" };
+        print!("node {}: parent = {}, depth = {}, {}, [", node.id, node.parent, node.depth, kind);
+        if node.children.len()!=0 {
+            for i in 0..node.children.len() {
+                print!("{}", node.children[i]);
+                if i<node.children.len()-1 { print!(", "); }
+            }
+        }
+        println!("]");
+    }
+    */
 }
 
 fn read_usize() -> usize {
@@ -74,7 +98,7 @@ fn read_usize() -> usize {
 fn read_node() -> Node {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
-    let line = lines.next().unwrap().unwrap();
+    let mut line = lines.next().unwrap().unwrap();
     let words = line.split_whitespace().collect::<Vec<&str>>();
     let id: usize = usize::from_str(words[0]).unwrap();
     let mut siblings: Vec<isize> = Vec::new();
@@ -86,7 +110,6 @@ fn read_node() -> Node {
     let parent: isize = -1;
     let degree: usize = 0;
     let depth: usize = 0;
-    let height: isize = -1;
-    //let kind: String = String::new();
-    Node{id, parent, siblings, degree, depth, height}
+    let kind: String = String::new();
+    Node{id, parent, siblings, degree, depth, kind}
 }
