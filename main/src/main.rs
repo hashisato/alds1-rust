@@ -1,68 +1,26 @@
 use std::io::{self, BufRead};
-use std::str::FromStr;
+use std::io::prelude::*;
+use std::collections::HashMap;
 
-struct Node {
-    id: usize,
-    parent: isize,
-    siblings: Vec<isize>,
-    degree: usize,
-    depth: usize,
-    height: isize,
-    //kind: String,
-}
+const MAX_INDEX: usize = 1e4 as usize + 1;
 
 fn main() {
     let n: usize = read_usize();
-    let mut nodes: Vec<Node> = Vec::new();
+    let mut A: Vec<u64> = read_u64_vec(n);
+    let mut count: u64 = 0;
+    /*
+    let key = partition(n-1, &mut A, &mut count);
+    println!("{}",count);
     for i in 0..n {
-        let node: Node = read_node();
-        nodes.push(node);
+        if i==0 { print!("{}", A[i]); }
+        else if i==key { print!(" [{}]", A[i]); }
+        else if i==n-1 { println!(" {}", A[i]); }
+        else { print!(" {}", A[i]); }
     }
-    //nodes.sort_by(|a, b| a.id.cmp(&b.id));
-    for i in 0..nodes.len() {
-        let mut count: usize = 0;
-        let element1: usize = nodes[i].siblings[0] as usize;
-        let element2: usize = nodes[i].siblings[1] as usize;
-        if nodes[i].siblings[0]!=-1 {
-            count += 1;
-            nodes[element1].parent = nodes[i].id as isize;
-            nodes[element1].siblings[2] = element2 as isize;
-        }
-        if nodes[i].siblings[1]!=-1 {
-            count += 1;
-            
-            nodes[element2].parent = nodes[i].id as isize;
-            nodes[element2].siblings[2] = element1 as isize;    
-        }
-        nodes[i].degree = count;
-        nodes[i].siblings.remove(0);
-        nodes[i].siblings.remove(0);
-    }
-    let (mut check, mut total, mut tmp): (isize, usize, isize) = (0, 0, 0);
-    for i in 0..n {
-        nodes[i].depth = 0;
-        check = nodes[i].parent;
-        while check!=-1 {
-            tmp += 1;
-            nodes[i].depth += 1;
-            check = nodes[check as usize].parent;
-        }
-        if (total as isize)<tmp { total = tmp as usize; }
-        tmp = 0;
-    }
-    for i in (0..total).rev() {
-        for j in 0..n {
-            if (nodes[j].height==-1) && (nodes[j].depth==i) {
-                let mut b: isize = j.try_into().unwrap();
-                let mut c: isize = 0;
-                while nodes[b as usize].height==-1 {
-                    nodes[b as usize].height = c as isize;
-                    b = nodes[b as usize].parent;
-                    c += 1;
-                }
-            }
-        }
-    }
+    print(&A);
+    */
+    let weight = weigh(&A, n);
+    println!("{}", weight);
 }
 
 fn read_usize() -> usize {
@@ -71,22 +29,81 @@ fn read_usize() -> usize {
     input.trim().parse().unwrap()
 }
 
-fn read_node() -> Node {
-    let stdin = io::stdin();
-    let mut lines = stdin.lock().lines();
-    let line = lines.next().unwrap().unwrap();
-    let words = line.split_whitespace().collect::<Vec<&str>>();
-    let id: usize = usize::from_str(words[0]).unwrap();
-    let mut siblings: Vec<isize> = Vec::new();
-    for i in 1..words.len() {
-        let sibling: isize = isize::from_str(words[i]).unwrap();
-        siblings.push(sibling);
+fn read_u64_vec(n: usize) -> Vec<u64> {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    input
+        .trim()
+        .split_whitespace()
+        .take(n)
+        .map(|s| s.parse().unwrap() )
+        .collect()
+}
+
+fn print(vec: &Vec<u64>) {
+    for i in vec {
+        println!("{} ", i);
     }
-    siblings.push(-1);
-    let parent: isize = -1;
-    let degree: usize = 0;
-    let depth: usize = 0;
-    let height: isize = -1;
-    //let kind: String = String::new();
-    Node{id, parent, siblings, degree, depth, height}
+}
+
+fn weigh(W: &Vec<u64>, n: usize) -> u64 {
+    // indexesは-1で初期化
+    let mut indexes: HashMap<u64, isize> = HashMap::new();
+    let mut A = W.clone();
+    A.sort();
+    let lowestwv = A[0];
+
+    // indexes[weight] = index の形式
+    for (i, &w) in W.iter().enumerate() {
+        indexes.insert(w, i as isize);
+    }
+
+    let mut weight = 0;
+    // W[0]からW[n-1]まで順に見る
+    for i in 0..n {
+        // グループをたどった時に使ったものならコスト加算済みなのでとばす
+        if *indexes.get(&W[i]).unwrap() < 0 {
+            continue;
+        }
+        // グループの終わりのチェックのため最初の値を保持
+        let fwv = W[i];
+        let mut av = A[i];
+        if fwv == av {
+            continue;
+        }
+        let mut minwv = fwv;
+        let mut next_idx = i;
+        // グループ内最小値を繰り返し動かした場合の合計コスト
+        let mut sum1 = 0;
+        // グループ内の要素数のカウント
+        let mut count = 1;
+        while {
+            //println!("{}", W[next_idx]);
+            sum1 += W[next_idx];
+            if minwv > W[next_idx] {
+                minwv = W[next_idx];
+            }
+            // 一巡してグループの最初に戻るならwhileを抜ける
+            if fwv == av {
+                false
+            } else {
+                count += 1;
+                // たどる
+                next_idx = *indexes.get(&av).unwrap() as usize;
+                indexes.insert(av, -1); // 使用済み（グループ済み）マーク
+                av = A[next_idx];
+                true
+            }
+        } {}
+
+        // 全体の最小値を繰り返し使うときの合計コスト（sum1はまだグループ総和のまま）
+        let sum2 = sum1 + minwv + (count + 1) * lowestwv;
+        //println!(" minwv: {} count: {}", minwv, count);
+        //println!("{} {} {} {}", sum1, minwv, count, lowestwv);
+        // 最終的なsum1を算出
+        sum1 += (count - 2) * minwv;
+        //println!("sum1: {} sum2: {}", sum1, sum2);
+        weight += sum1.min(sum2);
+    }
+    weight
 }
