@@ -4,89 +4,109 @@ use std::str::FromStr;
 struct Node {
     id: usize,
     parent: isize,
-    siblings: Vec<isize>,
+    left_child: isize,
+    right_child: isize,
+    sibling: isize,
     degree: usize,
     depth: usize,
+    height: usize,
     kind: String,
 }
 
 fn main() {
     let n: usize = read_usize();
     let mut nodes: Vec<Node> = Vec::new();
+
     for i in 0..n {
-        let node: Node = read_node();
-        nodes.push(node);
-    }
-    //nodes.sort_by(|a, b| a.id.cmp(&b.id));
-    for i in 0..nodes.len() {
-        let mut count: usize = 0;
-        let element1: usize = nodes[i].siblings[0] as usize;
-        let element2: usize = nodes[i].siblings[1] as usize;
-        if nodes[i].siblings[0]!=-1 {
-            count += 1;
-            nodes[element1].parent = nodes[i].id as isize;
-            nodes[element1].siblings[2] = element2 as isize;
-        }
-        if nodes[i].siblings[1]!=-1 {
-            count += 1;
-            
-            nodes[element2].parent = nodes[i].id as isize;
-            nodes[element2].siblings[2] = element1 as isize;    
-        }
-        nodes[i].degree = count;
-        nodes[i].siblings.remove(0);
-        nodes[i].siblings.remove(0);
-    }
-    let (mut check, mut total, mut tmp): (isize, usize, isize) = (0, 0, 0);
-    for i in 0..n {
-        nodes[i].depth = 0;
-        check = nodes[i].parent;
-        while check!=-1 {
-            tmp += 1;
-            nodes[i].depth += 1;
-            check = nodes[check as usize].parent;
-        }
-        if (total as isize)<tmp { total = tmp as usize; }
-        tmp = 0;
+        nodes.push(Node {
+            id: i,
+            parent: -1,
+            left_child: -1,
+            right_child: -1,
+            sibling: -1,
+            degree: 0,
+            depth: 0,
+            height: 0,
+            kind: String::new(),
+        });
     }
 
-    for i in nodes {
-        println!("id:{} p:{} s:{} deg:{} dep:{}", i.id, i.parent
-                                    , i.siblings[0]
-                                    , i.degree, i.depth);
-    }
-    /*
-    for i in 0..n {
-        for j in 0..nodes[i].children.len() {
-            let child = nodes[i].children[j];
-            nodes[child].parent = nodes[i].id as isize;
+    for _ in 0..n {
+        let (id, left, right) = read_node();
+        nodes[id].left_child = left;
+        nodes[id].right_child = right;
+
+        let mut degree = 0;
+        if left != -1 { degree += 1; }
+        if right != -1 { degree += 1; }
+        nodes[id].degree = degree;
+
+        if left != -1 {
+            nodes[left as usize].parent = id as isize;
         }
-    }
-    let mut check: isize = -1;
-    for i in 0..n {
-        nodes[i].depth = 0;
-        check = nodes[i].parent;
-        while check!=-1 {
-            nodes[i].depth += 1;
-            check = nodes[check as usize].parent;
+        if right != -1 {
+            nodes[right as usize].parent = id as isize;
         }
     }
 
     for i in 0..n {
-        let node = &nodes[i];
-        let kind = if node.parent==-1 { "root" }
-        else if node.children.len()==0 { "leaf" }
-        else { "internal node" };
-        print!("node {}: parent = {}, depth = {}, {}, [", node.id, node.parent, node.depth, kind);
-        if node.children.len()!=0 {
-            for i in 0..node.children.len() {
-                print!("{}", node.children[i]);
-                if i<node.children.len()-1 { print!(", "); }
-            }
+        let left = nodes[i].left_child;
+        let right = nodes[i].right_child;
+        
+        if left != -1 && right != -1 {
+            nodes[left as usize].sibling = right;
+            nodes[right as usize].sibling = left;
         }
-        println!("]");
     }
-    */
+
+    for i in 0..n {
+        let mut depth = 0;
+        let mut current = nodes[i].parent;
+        while current != -1 {
+            depth += 1;
+            current = nodes[current as usize].parent;
+        }
+        nodes[i].depth = depth;
+    }
+
+    for i in 0..n {
+        nodes[i].height = calculate_height(&nodes, i);
+    }
+
+    for i in 0..n {
+        if nodes[i].parent == -1 {
+            nodes[i].kind = "root".to_string();
+        } else if nodes[i].degree == 0 {
+            nodes[i].kind = "leaf".to_string();
+        } else {
+            nodes[i].kind = "internal node".to_string();
+        }
+    }
+
+    for i in 0..n {
+        println!("node {}: parent = {}, sibling = {}, degree = {}, depth = {}, height = {}, {}",
+            nodes[i].id, nodes[i].parent, nodes[i].sibling, 
+            nodes[i].degree, nodes[i].depth, nodes[i].height, nodes[i].kind);
+    }
+}
+
+fn calculate_height(nodes: &Vec<Node>, node_id: usize) -> usize {
+    let left = nodes[node_id].left_child;
+    let right = nodes[node_id].right_child;
+    
+    let mut max_height = 0;
+    
+    if left != -1 {
+        let left_height = calculate_height(nodes, left as usize);
+        max_height = max_height.max(left_height + 1);
+    }
+    
+    if right != -1 {
+        let right_height = calculate_height(nodes, right as usize);
+        max_height = max_height.max(right_height + 1);
+    }
+    
+    max_height
 }
 
 fn read_usize() -> usize {
@@ -95,21 +115,14 @@ fn read_usize() -> usize {
     input.trim().parse().unwrap()
 }
 
-fn read_node() -> Node {
-    let stdin = io::stdin();
-    let mut lines = stdin.lock().lines();
-    let mut line = lines.next().unwrap().unwrap();
-    let words = line.split_whitespace().collect::<Vec<&str>>();
-    let id: usize = usize::from_str(words[0]).unwrap();
-    let mut siblings: Vec<isize> = Vec::new();
-    for i in 1..words.len() {
-        let sibling: isize = isize::from_str(words[i]).unwrap();
-        siblings.push(sibling);
-    }
-    siblings.push(-1);
-    let parent: isize = -1;
-    let degree: usize = 0;
-    let depth: usize = 0;
-    let kind: String = String::new();
-    Node{id, parent, siblings, degree, depth, kind}
+fn read_node() -> (usize, isize, isize) {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let words: Vec<&str> = input.trim().split_whitespace().collect();
+    
+    let id: usize = words[0].parse().unwrap();
+    let left: isize = words[1].parse().unwrap();
+    let right: isize = words[2].parse().unwrap();
+    
+    (id, left, right)
 }
