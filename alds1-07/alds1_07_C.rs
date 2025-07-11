@@ -82,6 +82,12 @@ fn main() {
             nodes[i].kind = "internal node".to_string();
         }
     }
+
+    // Preorder output
+    println!("Preorder");
+    // Find the root node and start preorder traversal from there
+    let root = nodes.iter().position(|node| node.parent == -1).unwrap();
+    preorder(&nodes, root);
 }
 
 fn calculate_height(nodes: &Vec<Node>, node_id: usize) -> usize {
@@ -119,4 +125,15 @@ fn read_node() -> (usize, isize, isize) {
     let right: isize = words[2].parse().unwrap();
     
     (id, left, right)
+}
+
+fn preorder(nodes: &Vec<Node>, node_id: usize) {
+    let node = &nodes[node_id];
+    print!(" {}", node.id);
+    if node.left_child != -1 {
+        preorder(nodes, node.left_child as usize);
+    }
+    if node.right_child != -1 {
+        preorder(nodes, node.right_child as usize);
+    }
 }
