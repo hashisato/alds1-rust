@@ -91,8 +91,14 @@ fn main() {
 
     // Inorder output
     println!("\nInorder");
-    // Find the root node and start in-order traversal from there
+    // Start in-order traversal from the root node
     inorder(&nodes, root);
+
+    // Postorder output
+    println!("\nPostorder");
+    // Start post-order traversal from the root node
+    postorder(&nodes, root);
+    println!();
 }
 
 fn calculate_height(nodes: &Vec<Node>, node_id: usize) -> usize {
@@ -152,4 +158,15 @@ fn inorder(nodes: &Vec<Node>, node_id: usize) {
     if node.right_child != -1 {
         inorder(nodes, node.right_child as usize);
     }
+}
+
+fn postorder(nodes: &Vec<Node>, node_id: usize) {
+    let node = &nodes[node_id];
+    if node.left_child != -1 {
+        postorder(nodes, node.left_child as usize);
+    }
+    if node.right_child != -1 {
+        postorder(nodes, node.right_child as usize);
+    }
+    print!(" {}", node.id);
 }
