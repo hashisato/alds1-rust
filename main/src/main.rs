@@ -1,26 +1,106 @@
 use std::io::{self, BufRead};
-use std::io::prelude::*;
-use std::collections::HashMap;
+use std::str::FromStr;
 
-const MAX_INDEX: usize = 1e4 as usize + 1;
+struct Node {
+    id: usize,
+    parent: isize,
+    left_child: isize,
+    right_child: isize,
+    sibling: isize,
+    degree: usize,
+    depth: usize,
+    height: usize,
+    kind: String,
+}
 
 fn main() {
     let n: usize = read_usize();
-    let mut A: Vec<u64> = read_u64_vec(n);
-    let mut count: u64 = 0;
-    /*
-    let key = partition(n-1, &mut A, &mut count);
-    println!("{}",count);
+    let mut nodes: Vec<Node> = Vec::new();
+
     for i in 0..n {
-        if i==0 { print!("{}", A[i]); }
-        else if i==key { print!(" [{}]", A[i]); }
-        else if i==n-1 { println!(" {}", A[i]); }
-        else { print!(" {}", A[i]); }
+        nodes.push(Node {
+            id: i,
+            parent: -1,
+            left_child: -1,
+            right_child: -1,
+            sibling: -1,
+            degree: 0,
+            depth: 0,
+            height: 0,
+            kind: String::new(),
+        });
     }
-    print(&A);
-    */
-    let weight = weigh(&A, n);
-    println!("{}", weight);
+
+    for _ in 0..n {
+        let (id, left, right) = read_node();
+        nodes[id].left_child = left;
+        nodes[id].right_child = right;
+
+        let mut degree = 0;
+        if left != -1 { degree += 1; }
+        if right != -1 { degree += 1; }
+        nodes[id].degree = degree;
+
+        if left != -1 {
+            nodes[left as usize].parent = id as isize;
+        }
+        if right != -1 {
+            nodes[right as usize].parent = id as isize;
+        }
+    }
+
+    for i in 0..n {
+        let left = nodes[i].left_child;
+        let right = nodes[i].right_child;
+        
+        if left != -1 && right != -1 {
+            nodes[left as usize].sibling = right;
+            nodes[right as usize].sibling = left;
+        }
+    }
+
+    for i in 0..n {
+        let mut depth = 0;
+        let mut current = nodes[i].parent;
+        while current != -1 {
+            depth += 1;
+            current = nodes[current as usize].parent;
+        }
+        nodes[i].depth = depth;
+    }
+
+    for i in 0..n {
+        nodes[i].height = calculate_height(&nodes, i);
+    }
+
+    for i in 0..n {
+        if nodes[i].parent == -1 {
+            nodes[i].kind = "root".to_string();
+        } else if nodes[i].degree == 0 {
+            nodes[i].kind = "leaf".to_string();
+        } else {
+            nodes[i].kind = "internal node".to_string();
+        }
+    }
+}
+
+fn calculate_height(nodes: &Vec<Node>, node_id: usize) -> usize {
+    let left = nodes[node_id].left_child;
+    let right = nodes[node_id].right_child;
+    
+    let mut max_height = 0;
+    
+    if left != -1 {
+        let left_height = calculate_height(nodes, left as usize);
+        max_height = max_height.max(left_height + 1);
+    }
+    
+    if right != -1 {
+        let right_height = calculate_height(nodes, right as usize);
+        max_height = max_height.max(right_height + 1);
+    }
+    
+    max_height
 }
 
 fn read_usize() -> usize {
@@ -29,81 +109,14 @@ fn read_usize() -> usize {
     input.trim().parse().unwrap()
 }
 
-fn read_u64_vec(n: usize) -> Vec<u64> {
+fn read_node() -> (usize, isize, isize) {
     let mut input = String::new();
     io::stdin().read_line(&mut input).unwrap();
-    input
-        .trim()
-        .split_whitespace()
-        .take(n)
-        .map(|s| s.parse().unwrap() )
-        .collect()
-}
-
-fn print(vec: &Vec<u64>) {
-    for i in vec {
-        println!("{} ", i);
-    }
-}
-
-fn weigh(W: &Vec<u64>, n: usize) -> u64 {
-    // indexesは-1で初期化
-    let mut indexes: HashMap<u64, isize> = HashMap::new();
-    let mut A = W.clone();
-    A.sort();
-    let lowestwv = A[0];
-
-    // indexes[weight] = index の形式
-    for (i, &w) in W.iter().enumerate() {
-        indexes.insert(w, i as isize);
-    }
-
-    let mut weight = 0;
-    // W[0]からW[n-1]まで順に見る
-    for i in 0..n {
-        // グループをたどった時に使ったものならコスト加算済みなのでとばす
-        if *indexes.get(&W[i]).unwrap() < 0 {
-            continue;
-        }
-        // グループの終わりのチェックのため最初の値を保持
-        let fwv = W[i];
-        let mut av = A[i];
-        if fwv == av {
-            continue;
-        }
-        let mut minwv = fwv;
-        let mut next_idx = i;
-        // グループ内最小値を繰り返し動かした場合の合計コスト
-        let mut sum1 = 0;
-        // グループ内の要素数のカウント
-        let mut count = 1;
-        while {
-            //println!("{}", W[next_idx]);
-            sum1 += W[next_idx];
-            if minwv > W[next_idx] {
-                minwv = W[next_idx];
-            }
-            // 一巡してグループの最初に戻るならwhileを抜ける
-            if fwv == av {
-                false
-            } else {
-                count += 1;
-                // たどる
-                next_idx = *indexes.get(&av).unwrap() as usize;
-                indexes.insert(av, -1); // 使用済み（グループ済み）マーク
-                av = A[next_idx];
-                true
-            }
-        } {}
-
-        // 全体の最小値を繰り返し使うときの合計コスト（sum1はまだグループ総和のまま）
-        let sum2 = sum1 + minwv + (count + 1) * lowestwv;
-        //println!(" minwv: {} count: {}", minwv, count);
-        //println!("{} {} {} {}", sum1, minwv, count, lowestwv);
-        // 最終的なsum1を算出
-        sum1 += (count - 2) * minwv;
-        //println!("sum1: {} sum2: {}", sum1, sum2);
-        weight += sum1.min(sum2);
-    }
-    weight
+    let words: Vec<&str> = input.trim().split_whitespace().collect();
+    
+    let id: usize = words[0].parse().unwrap();
+    let left: isize = words[1].parse().unwrap();
+    let right: isize = words[2].parse().unwrap();
+    
+    (id, left, right)
 }
