@@ -1,22 +1,18 @@
 use std::io::*;
 use std::str::FromStr;
 
-fn rin<T: FromStr>() -> T {
-    let s = stdin();
-    let s = s.lock();
-    let s: String = s.bytes()
-        .map(|c| c.expect("failed reading char.") as char)
-        .skip_while(|c| c.is_whitespace())
-        .take_while(|c| !c.is_whitespace())
-        .collect();
-    s.parse().ok().expect("failed parsing.")
+fn read_val<T: FromStr>() -> T {
+    use std::io::{self, Read};
+    let mut buf = String::new();
+    io::stdin().read_line(&mut buf).unwrap();
+    buf.trim().parse().expect("parse error")
 }
 
 fn main() {
-    let n: usize = rin();
+    let n: usize = read_val();
     let mut a: Vec<i32> = Vec::with_capacity(n);
     for _ in 0..n {
-        a.push(rin());
+        a.push(read_val());
     }
 
     a.sort();
