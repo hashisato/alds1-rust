@@ -1,155 +1,86 @@
 use std::io::{self, BufRead};
-use std::str::FromStr;
 
 struct Node {
-    id: usize,
-    parent: isize,
-    left_child: isize,
-    right_child: isize,
-    sibling: isize,
-    degree: usize,
-    depth: usize,
-    height: usize,
-    kind: String,
+    left: Option<usize>,
+    right: Option<usize>,
+    parent: Option<usize>,
+    key: i32,
 }
 
 fn main() {
-    let n: usize = read_usize();
-    let mut nodes: Vec<Node> = Vec::new();
+    let stdin = io::stdin();
+    let mut lines = stdin.lock().lines();
 
-    for i in 0..n {
-        nodes.push(Node {
-            id: i,
-            parent: -1,
-            left_child: -1,
-            right_child: -1,
-            sibling: -1,
-            degree: 0,
-            depth: 0,
-            height: 0,
-            kind: String::new(),
-        });
-    }
+    let n: usize = lines.next().unwrap().unwrap().trim().parse().unwrap();
+    let mut nodes: Vec<Node> = Vec::new();
+    let mut root: Option<usize> = None;
 
     for _ in 0..n {
-        let (id, left, right) = read_node();
-        nodes[id].left_child = left;
-        nodes[id].right_child = right;
-
-        let mut degree = 0;
-        if left != -1 { degree += 1; }
-        if right != -1 { degree += 1; }
-        nodes[id].degree = degree;
-
-        if left != -1 {
-            nodes[left as usize].parent = id as isize;
-        }
-        if right != -1 {
-            nodes[right as usize].parent = id as isize;
-        }
-    }
-
-    for i in 0..n {
-        let left = nodes[i].left_child;
-        let right = nodes[i].right_child;
-        
-        if left != -1 && right != -1 {
-            nodes[left as usize].sibling = right;
-            nodes[right as usize].sibling = left;
+        let line = lines.next().unwrap().unwrap();
+        let parts: Vec<&str> = line.trim().split_whitespace().collect();
+        match parts[0] {
+            "insert" => {
+                let key: i32 = parts[1].parse().unwrap();
+                insert(&mut nodes, &mut root, key);
+            }
+            "print" => {
+                if let Some(r) = root {
+                    inorder(&nodes, r);
+                    println!();
+                    preorder(&nodes, r);
+                    println!();
+                }
+            }
+            _ => {}
         }
     }
+}
 
-    for i in 0..n {
-        let mut depth = 0;
-        let mut current = nodes[i].parent;
-        while current != -1 {
-            depth += 1;
-            current = nodes[current as usize].parent;
-        }
-        nodes[i].depth = depth;
-    }
-
-    for i in 0..n {
-        nodes[i].height = calculate_height(&nodes, i);
-    }
-
-    for i in 0..n {
-        if nodes[i].parent == -1 {
-            nodes[i].kind = "root".to_string();
-        } else if nodes[i].degree == 0 {
-            nodes[i].kind = "leaf".to_string();
+fn insert(nodes: &mut Vec<Node>, root: &mut Option<usize>, key: i32) {
+    let mut y: Option<usize> = None;
+    let mut x = *root;
+    while let Some(idx) = x {
+        y = x;
+        if key < nodes[idx].key {
+            x = nodes[idx].left;
         } else {
-            nodes[i].kind = "internal node".to_string();
+            x = nodes[idx].right;
         }
     }
-
-    // Preorder output
-    println!("Preorder");
-    // Find the root node and start preorder traversal from there
-    let root = nodes.iter().position(|node| node.parent == -1).unwrap();
-    preorder(&nodes, root);
-
-    // Inorder output
-    println!("\nInorder");
-    // Find the root node and start in-order traversal from there
-    inorder(&nodes, root);
-}
-
-fn calculate_height(nodes: &Vec<Node>, node_id: usize) -> usize {
-    let left = nodes[node_id].left_child;
-    let right = nodes[node_id].right_child;
-    
-    let mut max_height = 0;
-    
-    if left != -1 {
-        let left_height = calculate_height(nodes, left as usize);
-        max_height = max_height.max(left_height + 1);
-    }
-    
-    if right != -1 {
-        let right_height = calculate_height(nodes, right as usize);
-        max_height = max_height.max(right_height + 1);
-    }
-    
-    max_height
-}
-
-fn read_usize() -> usize {
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-    input.trim().parse().unwrap()
-}
-
-fn read_node() -> (usize, isize, isize) {
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-    let words: Vec<&str> = input.trim().split_whitespace().collect();
-    
-    let id: usize = words[0].parse().unwrap();
-    let left: isize = words[1].parse().unwrap();
-    let right: isize = words[2].parse().unwrap();
-    
-    (id, left, right)
-}
-
-fn preorder(nodes: &Vec<Node>, node_id: usize) {
-    let node = &nodes[node_id];
-    print!(" {}", node.id);
-    if node.left_child != -1 {
-        preorder(nodes, node.left_child as usize);
-    }
-    if node.right_child != -1 {
-        preorder(nodes, node.right_child as usize);
+    let z = nodes.len();
+    nodes.push(Node {
+        left: None,
+        right: None,
+        parent: y,
+        key,
+    });
+    if let Some(yidx) = y {
+        if key < nodes[yidx].key {
+            nodes[yidx].left = Some(z);
+        } else {
+            nodes[yidx].right = Some(z);
+        }
+    } else {
+        *root = Some(z);
     }
 }
 
-fn inorder(nodes: &Vec<Node>, node_id: usize) {
-    let node = &nodes[node_id];
-    if node.left_child != -1 {
-        inorder(nodes, node.left_child as usize);
+fn inorder(nodes: &Vec<Node>, idx: usize) {
+    if let Some(left) = nodes[idx].left {
+        inorder(nodes, left);
     }
-    print!(" {}", node.id);
-    if node.right_child != -1 {
-        inorder(nodes, node.right_child as usize);
+    print!(" {}", nodes[idx].key);
+    if let Some(right) = nodes[idx].right {
+        inorder(nodes, right);
+    }
+}
+
+fn preorder(nodes: &Vec<Node>, idx: usize) {
+    print!(" {}", nodes[idx].key);
+    if let Some(left) = nodes[idx].left {
+        preorder(nodes, left);
+    }
+    if let Some(right) = nodes[idx].right {
+        preorder(nodes, right);
     }
 }
