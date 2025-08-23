@@ -1,10 +1,10 @@
 use std::io::{self, BufRead};
 
 struct Node {
+    key: i32,
     left: Option<usize>,
     right: Option<usize>,
     parent: Option<usize>,
-    key: i32,
 }
 
 fn main() {
