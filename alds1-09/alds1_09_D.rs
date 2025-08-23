@@ -1,18 +1,12 @@
 use std::io::*;
 use std::str::FromStr;
 
-fn read_val<T: FromStr>() -> T {
-    use std::io::{self, Read};
-    let mut buf = String::new();
-    io::stdin().read_line(&mut buf).unwrap();
-    buf.trim().parse().expect("parse error")
-}
-
 fn main() {
-    let n: usize = read_val();
+    let mut stdin = stdin();
+    let n: usize = stdin.read_line().unwrap().trim().parse().unwrap();
     let mut a: Vec<i32> = Vec::with_capacity(n);
     for _ in 0..n {
-        a.push(read_val());
+        a.push(stdin.read_line().unwrap().trim().parse().unwrap());
     }
 
     a.sort();
