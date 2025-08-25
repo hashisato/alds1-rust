@@ -1,27 +1,26 @@
 use std::io::{self, BufRead};
 
-const INF: i32 = 100000000;
+const INF: i32 = std::i32::MAX;
 
 fn main() {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
-
     let num: usize = lines.next().unwrap().unwrap().trim().parse().unwrap();
     let mut edges = Vec::new();
     let mut d = vec![INF; num];
     let mut color = vec![0; num];
-
     let mut last_node = 0;
+
     for _ in 0..num {
         let line = lines.next().unwrap().unwrap();
         let mut nums = line.split_whitespace().map(|s| s.parse::<i32>().unwrap());
-        let n1 = nums.next().unwrap() as usize;
-        let n2 = nums.next().unwrap() as usize;
-        last_node = n1;
-        for _ in 0..n2 {
-            let n3 = nums.next().unwrap() as usize;
-            let n4 = nums.next().unwrap();
-            edges.push((n1, n3, n4));
+        let u = nums.next().unwrap() as usize;
+        let k = nums.next().unwrap() as usize;
+        last_node = u;
+        for _ in 0..k {
+            let v = nums.next().unwrap() as usize;
+            let c = nums.next().unwrap();
+            edges.push((u, v, c));
         }
     }
 
