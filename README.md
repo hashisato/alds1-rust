@@ -13,7 +13,15 @@ This repository contains solutions to the "Algorithms and Data Structures (ALDS1
 
 1. Make sure Rust is installed on your system.
 2. Navigate to the desired directory.
-3. Run the code using `cargo run` or compile and execute with `rustc filename.rs && ./filename`.
+3. Run the code using the following commands:
+
+   ```sh
+   cargo run
+   ```
+   or
+   ```sh
+   rustc filename.rs && ./filename
+   ```
 
 ## Purpose
 
