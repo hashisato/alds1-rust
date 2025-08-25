@@ -15,12 +15,12 @@ fn main() {
     for _ in 0..num {
         let line = lines.next().unwrap().unwrap();
         let mut nums = line.split_whitespace().map(|s| s.parse::<i32>().unwrap());
-        let n1 = nums.next().unwrap() as usize;
-        let n2 = nums.next().unwrap() as usize;
-        for _ in 0..n2 {
-            let n3 = nums.next().unwrap() as usize;
-            let n4 = nums.next().unwrap();
-            data[n1][n3] = n4;
+        let u = nums.next().unwrap() as usize;
+        let k = nums.next().unwrap() as usize;
+        for _ in 0..k {
+            let v = nums.next().unwrap() as usize;
+            let c = nums.next().unwrap();
+            data[u][v] = c;
         }
     }
 
