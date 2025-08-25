@@ -5,13 +5,11 @@ const INF: i32 = std::i32::MAX;
 fn main() {
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
-
     let num: usize = lines.next().unwrap().unwrap().trim().parse().unwrap();
     let mut data = vec![vec![-1; num]; num];
     let mut d = vec![INF; num];
     let mut pi = vec![-1; num];
     let mut color = vec![2; num];
-
     d[0] = 0;
 
     for _ in 0..num {
