@@ -43,17 +43,18 @@ fn put_queen(
         return;
     }
     for j in 0..N {
-        if col[j] == 0 || dpos[i + j] == 0 || dneg[(i as isize) - (j as isize) + (N as isize) - 1] == 0 {
+        let dneg_idx = i + N - 1 - j;
+        if col[j] == 0 || dpos[i + j] == 0 || dneg[dneg_idx] == 0 {
             continue;
         }
         row[i] = j;
         col[j] = 0;
         dpos[i + j] = 0;
-        dneg[(i as isize) - (j as isize) + (N as isize) - 1] = 0;
+        dneg[dneg_idx] = 0;
         put_queen(i + 1, data, row, col, dpos, dneg);
         col[j] = 1;
         dpos[i + j] = 1;
-        dneg[(i as isize) - (j as isize) + (N as isize) - 1] = 1;
+        dneg[dneg_idx] = 1;
     }
 }
 
