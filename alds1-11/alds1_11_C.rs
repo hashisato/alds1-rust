@@ -24,7 +24,6 @@ fn main() {
     bfs_queue[0] = 0;
     distance[0] = 0;
     let mut tail = 0;
-
     for head in 0..n {
         let current = bfs_queue[head];
         for next in 0..n {
