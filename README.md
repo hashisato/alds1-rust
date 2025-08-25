@@ -2,18 +2,19 @@
 
 ## Overview
 
-This repository contains solutions to the "Algorithms and Data Structures (ALDS1)" problems from AOJ (Aizu Online Judge), implemented in Rust.
+This repository provides Rust solutions for the "Algorithms and Data Structures (ALDS1)" problems from AOJ (Aizu Online Judge).
 
 ## Directory Structure
 
 - `alds1-01` to `alds1-13`  
-  Each directory contains Rust source code files for the corresponding ALDS1 problems.
+  Each directory contains Rust source files for the corresponding ALDS1 problems.
 
 ## Usage
 
 1. Make sure Rust is installed on your system.
-2. Navigate to the desired directory.
-3. Run the code using the following commands:
+2. Clone this repository and navigate to the project directory.
+3. Move to the desired problem directory.
+4. Run the code using one of the following commands:
 
    ```sh
    cargo run
@@ -23,11 +24,11 @@ This repository contains solutions to the "Algorithms and Data Structures (ALDS1
    rustc filename.rs && ./filename
    ```
 
-## Purpose
+## Features
 
-- To learn the basics of Rust syntax
-- To practice standard input/output and control structures
-- To improve problem-solving skills for competitive programming
+- Learn Rust syntax and algorithms through practical problems
+- Practice standard input/output and control structures
+- Improve competitive programming skills
 
 ## References
 
