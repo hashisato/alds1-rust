@@ -26,10 +26,10 @@ fn max_prof(data: Vec<u64>, num: usize) -> i64 {
     let mut maxv: i64 = (data[1]-data[0]) as i64;
     for i in 1..num {
         let j: i64 = data[i] as i64; 
-        if maxv<j-minv {
+        if maxv < j-minv {
             maxv = j-minv;
         }
-        if j<minv {
+        if j < minv {
             minv = j;
         }
     }
