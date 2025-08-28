@@ -3,11 +3,11 @@ use std::io::{self, BufRead};
 use std::str::FromStr;
 
 fn main() {
-    let list: VecDeque<i64> = input();
+    let list: VecDeque<i64> = dll();
     print(&list);
 }
 
-fn input() -> VecDeque<i64> {
+fn dll() -> VecDeque<i64> {
     let mut word = String::new();
     std::io::stdin().read_line(&mut word).unwrap();
     let n: usize = word.trim().parse().unwrap();
