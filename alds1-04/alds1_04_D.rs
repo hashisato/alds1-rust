@@ -56,6 +56,5 @@ fn canLoad(n: usize, k: usize, w: &Vec<usize>, capacity: usize) -> bool {
             }
         }
     }
-    
     true
 }
