@@ -16,7 +16,6 @@ This repository is licensed under the MIT License.
 See [LICENSE](LICENSE) for details.
 
 ---
----
 
 ## 概要
 このリポジトリは、AOJ（Aizu Online Judge）の「Algorithms and Data Structures (ALDS1)」問題に対するRustでの解答を提供します。
